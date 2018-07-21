@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from model import *
 
-model_name, optimizer, lr = "ResNet50", "Adam", 1e-5
+model_name, optimizer, lr = "DenseNet169", "Adam", 1e-5
 
 
 def run(model_name, optimizer, lr):
@@ -38,7 +38,7 @@ def run(model_name, optimizer, lr):
 
     # Loading model
     print('\n  Loading model')
-    model_config, fc, pred, layer_names, input_shape = model_config()
+    model_config, fc, pred, layer_names, input_shape = load_model_config()
     MODEL = model_config[model_name][1]
     batch_size = model_config[model_name][0]
 
@@ -72,11 +72,13 @@ def run(model_name, optimizer, lr):
 
     datagen = ImageDataGenerator(
         preprocessing_function=preprocess_input,
-        rotation_range=30,
+        # preprocessing_function=get_random_eraser(p=0.2, v_l=0, v_h=255, pixel_level=True),
+        rotation_range=40,
         width_shift_range=0.3,
         height_shift_range=0.3,
         shear_range=0.3,
         zoom_range=0.3,
+        horizontal_flip=True,
         fill_mode='nearest')
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 

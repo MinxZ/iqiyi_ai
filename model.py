@@ -12,7 +12,7 @@ from keras.optimizers import *
 from tqdm import tqdm
 
 
-def model_config():
+def load_model_config():
     model_config = {
         "ResNet50": [32, ResNet50],
         "DenseNet121": [36, DenseNet121],
