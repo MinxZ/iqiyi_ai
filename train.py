@@ -48,7 +48,6 @@ def run(model_name, optimizer, lr):
         cnn_model = MODEL(
             include_top=False, input_shape=input_shape, weights='imagenet', pooling='avg')
         inputs = Input(shape=input_shape)
-        x = Lambda(preprocess_input, name='preprocessing')(x)
         x = cnn_model(inputs)
         model = tri_fc(inputs, x, fc, pred, layer_names)
 
@@ -65,9 +64,8 @@ def run(model_name, optimizer, lr):
         return model
 
     try:
-        with CustomObjectScope({'preprocessing': preprocess_input}):
-            model = load_model(
-                f'../models/{model_name}_{len(fc)}_fc.h5')
+        model = load_model(
+            f'../models/{model_name}_{len(fc)}_fc.h5')
         checkpointer = ModelCheckpoint(
             filepath=f'../models/{model_name}_{len(fc)}_fc_fine_tune.h5', verbose=0, save_best_only=True)
         print('\n  Ready to fine tune.')
