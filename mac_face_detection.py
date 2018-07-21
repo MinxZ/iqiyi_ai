@@ -85,6 +85,15 @@ pickle.dump(val2face, open("val2face.p", "wb"))
 faces = np.array(faces)
 np.save(f'{data_path}/x_val', faces)
 
+try:
+    p = np.load('../data/p.npy')
+    print('Load p.npy successfully')
+except:
+    p = np.random.permutation(num_sample)
+    np.save('../data/p', p)
+    print('Create indice again.')
+
+
 # %%
 
 
