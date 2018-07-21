@@ -14,7 +14,7 @@ from model import resizeAndPad
 
 # %%
 data_path = '../data/IQIYI_VID_DATA_Part1'
-for train_val in ['val', 'train']:
+for train_val in ['train']:
     png_list = glob.glob(f'{data_path}/png_{train_val}/*.png')
 
     if train_val == 'train':

@@ -16,11 +16,11 @@ def load_model_config():
     model_config = {
         "ResNet50": [32, ResNet50],
         "DenseNet121": [36, DenseNet121],
-        "DenseNet169": [32, DenseNet169],
-        "DenseNet201": [24, DenseNet201],
-        "Xception": [32, Xception],
-        "InceptionV3": [32, InceptionV3],
-        "InceptionResNetV2": [24, InceptionResNetV2],
+        "DenseNet169": [18, DenseNet169],
+        "DenseNet201": [14, DenseNet201],
+        "Xception": [24, Xception],
+        "InceptionV3": [24, InceptionV3],
+        "InceptionResNetV2": [16, InceptionResNetV2],
     }
     input_shape = (224, 224, 3)
     fc, pred, layer_names = [512], [574], 'face'
