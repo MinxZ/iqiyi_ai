@@ -53,9 +53,9 @@ def run(model_name, optimizer, lr):
                                           fc, pred, layer_names, model_name, preprocess_input)
     # callbacks
     early_stopping = EarlyStopping(
-        monitor='val_loss', patience=5, verbose=2, mode='auto')
+        monitor='val_loss', patience=6, verbose=2, mode='auto')
     reduce_lr = ReduceLROnPlateau(
-        factor=np.sqrt(0.1), patience=2, verbose=2)
+        factor=np.sqrt(0.1), patience=3, verbose=2)
 
     if optimizer == 'SGD':
         opt = SGD(lr=lr, momentum=0.9, nesterov=True)
