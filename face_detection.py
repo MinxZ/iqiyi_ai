@@ -3,43 +3,79 @@ import glob
 import os
 from collections import defaultdict
 
-import cv2 as cv2
 import face_recognition
-import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 from tqdm import tqdm
 
-%matplotlib　inline
+# %matplotlib　inline
 # %%
-mp4_path = '../data/IQIYI_VID_DATA_Part_1/IQIYI_VID_DATA_Part1/IQIYI_VID_TRAIN'
-mp4_list = glob.glob(f'{mp4_path}/*.mp4')
-len(mp4_list)
-cap = cv2.VideoCapture(mp4_list[0])
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    RGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    cv2.imshow('frame', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+data_path = '../data/IQIYI_VID_DATA_Part1'
+png_list = glob.glob(f'{data_path}/png_train/*.png')
+
+with open(data_path + '/train.txt') as f:
+    contents = f.readlines()
+id2file = defaultdict(list)
+file2id = {}
+for index, line in enumerate(contents):
+    file_path, id = line.rstrip('\n').split(' ')
+    id2file[int(id)].append(file_path)
+    file2id[file_path[-10:]] = int(id)
+
+# %%
+# features
+try:
+    id_feature = np.load('id_feature.npy')
+except:
+    id_feature = defaultdict(list)
+    for index, img_path in tqdm(enumerate(png_list)):
+        image = face_recognition.load_image_file(img_path)
+        face_encodings = face_recognition.face_encodings(image)
+        if face_encodings != []:
+            id = file2id[img_path[-19:-9]]
+            id_feature[id].append(face_encodings[0])
+
+for id in range(1, 10):
+    print(len(id_feature[id]))
+
+t4 = np.array(id_feature[4])
+t9 = np.array(id_feature[9])
 
 
 # %%
-png_path = '../data/IQIYI_VID_DATA_Part_1/IQIYI_VID_DATA_Part1'
-png_list = glob.glob(f'{png_path}/*.png')
-len(png_list)
+# test
+dist4 = []
+dist9 = []
+id = 4
+for i in range(len(id_feature[id])):
+    dist4.append(np.linalg.norm(face_encodings - id_feature[id][i]))
+id = 9
+for i in range(len(id_feature[id])):
+    dist9.append(np.linalg.norm(face_encodings - id_feature[id][i]))
+dist4
+dist9
+
+
 # %%
-for index1, img_path in tqdm(enumerate(png_list)):
+for index1, img_path in tqdm(enumerate(png_list[:40])):
     bgr_image = cv2.imread(img_path)
     image = face_recognition.load_image_file(img_path)
     face_locations = face_recognition.face_locations(image)
+    # cnn_face_locations = face_recognition.face_locations(image, model="cnn")
 
     if len(face_locations) == 0:
-        cv2.imwrite(f'{img_path[-20:]}', bgr_image)
+        print('None')
+        # cv2.imwrite(f'{img_path[-20:]}', bgr_image)
     else:
+        # for index, crop in enumerate(cnn_face_locations):
+        #     y1, x1, y2, x2 = crop
+        #     cv2.rectangle(bgr_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
         for index, crop in enumerate(face_locations):
             y1, x1, y2, x2 = crop
-            cv2.rectangle(bgr_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-            cv2.imwrite(f'{img_path[-20:]}', bgr_image)
+            bgr_image = bgr_image[y1:y2, x2:x1, :]
+            # cv2.rectangle(bgr_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        cv2.imwrite(f'{img_path[-20:]}', bgr_image)
 
 # %%
+bgr_image.shape
+face_locations
+face_encoding[0].shape
