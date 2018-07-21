@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 def model_config():
     model_config = {
-        "ResNet50": [36, ResNet50],
+        "ResNet50": [32, ResNet50],
         "DenseNet121": [36, DenseNet121],
         "DenseNet169": [32, DenseNet169],
         "DenseNet201": [24, DenseNet201],
@@ -95,8 +95,8 @@ def fc_model_train(x_train_fc, y_train_fc, x_val_fc, y_val_fc, batch_size, cnn_m
         callbacks=[checkpointer, early_stopping])
 
 
-def build_model(input_shape, inputs, x_train, y_train, x_val, y_val, batch_size,
-                cnn_model, fc, pred, layer_names, model_name, preprocess_input):
+def build_model(input_shape, x_train, y_train, x_val, y_val, batch_size,
+                fc, pred, layer_names, model_name, preprocess_input):
     print('\n  Build model')
     name_model = f'../models/{model_name}_{len(fc)}_fc.h5'
     checkpointer = ModelCheckpoint(

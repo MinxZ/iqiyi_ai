@@ -88,11 +88,11 @@ for index, img_path in tqdm(enumerate(val_png_list)):
 pickle.dump(val2face, open("../data/val2face.p", "wb"))
 faces = np.array(faces)
 np.save(f'../data/x_val', faces)
+num_sample = x_val.shape[0]
+y_val = np.zeros((num_sample, 574), dtype=np.int8)
 
-try:
-    p = np.load('../data/p.npy')
-    print('Load p.npy successfully')
-except:
-    p = np.random.permutation(num_sample)
-    np.save('../data/p', p)
-    print('Create indice again.')
+for file, faces in file2face.items():
+    id_true = file2id[file]
+    for i in faces:
+        y_val[i][id_true - 1] = 1
+np.save('../data/y_val', y_val)
