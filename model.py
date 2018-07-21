@@ -96,7 +96,7 @@ def fc_model_train(x_train_fc, y_train_fc, x_val_fc, y_val_fc, batch_size, cnn_m
         callbacks=[checkpointer, early_stopping])
 
 
-def build_model(input_shape, x_train, y_train, x_val, y_val, batch_size,
+def build_model(MODEL, input_shape, x_train, y_train, x_val, y_val, batch_size,
                 fc, pred, layer_names, model_name, preprocess_input):
     print('\n  Build model')
     name_model = f'../models/{model_name}_{len(fc)}_fc.h5'

@@ -49,7 +49,7 @@ def run(model_name, optimizer, lr):
             filepath=f'../models/{model_name}_{len(fc)}_fc_4.h5', verbose=0, save_best_only=True)
         print('\n  Ready to fine tune.')
     except:
-        model, checkpointer = build_model(input_shape, x_train, y_train, x_val, y_val, batch_size,
+        model, checkpointer = build_model(MODEL, input_shape, x_train, y_train, x_val, y_val, batch_size,
                                           fc, pred, layer_names, model_name, preprocess_input)
     # callbacks
     early_stopping = EarlyStopping(
