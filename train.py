@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from model import *
 
-model_name, optimizer, lr = "ResNet50", "Adam", 2e-5
+model_name, optimizer, lr = "ResNet50", "Adam", 1e-5
 
 
 def run(model_name, optimizer, lr):
@@ -44,9 +44,9 @@ def run(model_name, optimizer, lr):
 
     try:
         model = load_model(
-            f'../models/{model_name}_{len(fc)}_fc.h5')
+            f'../models/{model_name}_{len(fc)}_fc_2.h5')
         checkpointer = ModelCheckpoint(
-            filepath=f'../models/{model_name}_{len(fc)}_fc_fine_tune.h5', verbose=0, save_best_only=True)
+            filepath=f'../models/{model_name}_{len(fc)}_fc_4.h5', verbose=0, save_best_only=True)
         print('\n  Ready to fine tune.')
     except:
         model, checkpointer = build_model(input_shape, inputs, x_train, y_train, x_val, y_val, batch_size,

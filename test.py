@@ -46,7 +46,16 @@ def run(model_name, optimizer, lr):
     model_config, fc, pred, layer_names, input_shape = model_config()
     batch_size = model_config[model_name][0]
     model = load_model(f'../models/{model_name}_{len(fc)}_fc.h5')
-    p_pred = model.predict(x_val, batch_size, verbose=1)
+    y_pred = model.predict(x_val, batch_size, verbose=1)
+    count = 0
+    win = 0
+    for file, faces in file2face.items():
+        count += 1
+        id_true = file2id[file]
+        id_pred = np.argmax(np.average(y_pred[faces], axis=0)) + 1
+        if id_pred == id_true:
+            win += 1
+    print(win / count)
 
 
 def parse_args():

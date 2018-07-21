@@ -13,8 +13,8 @@ from tqdm import tqdm
 
 def model_config():
     model_config = {
-        "ResNet50": [48, ResNet50],
-        "DenseNet121": [32, DenseNet121],
+        "ResNet50": [36, ResNet50],
+        "DenseNet121": [36, DenseNet121],
         "DenseNet169": [32, DenseNet169],
         "DenseNet201": [24, DenseNet201],
         "Xception": [32, Xception],
