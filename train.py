@@ -12,6 +12,7 @@ from keras.callbacks import *
 from keras.layers import *
 from keras.models import *
 from keras.optimizers import *
+from keras.preprocessing.image import ImageDataGenerator
 from keras.utils.generic_utils import CustomObjectScope
 from tqdm import tqdm
 
@@ -37,31 +38,9 @@ def run(model_name, optimizer, lr):
 
     # Loading model
     print('\n  Loading model')
-    model_config, fc, pred, layer_names, input_shape = load_model_config()
+    model_config, fc, pred, layer_names, input_shape = model_config()
     MODEL = model_config[model_name][1]
     batch_size = model_config[model_name][0]
-
-    def build_model():
-        print('\n  Build model')
-        checkpointer = ModelCheckpoint(
-            filepath=f'../models/{model_name}_{len(fc)}_fc.h5', verbose=0, save_best_only=True)
-        cnn_model = MODEL(
-            include_top=False, input_shape=input_shape, weights='imagenet', pooling='avg')
-        inputs = Input(shape=input_shape)
-        x = cnn_model(inputs)
-        model = tri_fc(inputs, x, fc, pred, layer_names)
-
-        try:
-            model.load_weights(
-                f'../models/{len(fc)}_fc_{model_name}.h5', by_name=True)
-            print('\n  Succeed on loading fc wight ')
-        except:
-            print('\n  Train fc')
-            fc_model_train(x_train, y_train, x_val, y_val, batch_size,
-                           cnn_model, fc, model_name, preprocess_input)
-            model.load_weights(
-                f'../models/{len(fc)}_fc_{model_name}.h5', by_name=True)
-        return model
 
     try:
         model = load_model(
@@ -70,25 +49,13 @@ def run(model_name, optimizer, lr):
             filepath=f'../models/{model_name}_{len(fc)}_fc_fine_tune.h5', verbose=0, save_best_only=True)
         print('\n  Ready to fine tune.')
     except:
-        build_model()
-
+        model, checkpointer = build_model(input_shape, inputs, x_train, y_train, x_val, y_val, batch_size,
+                                          cnn_model, fc, pred, layer_names, model_name, preprocess_input)
     # callbacks
     early_stopping = EarlyStopping(
         monitor='val_loss', patience=6, verbose=2, mode='auto')
     reduce_lr = ReduceLROnPlateau(
         factor=np.sqrt(0.1), patience=2, verbose=2)
-
-    datagen = ImageDataGenerator(
-        preprocessing_function=preprocess_input,
-        # preprocessing_function=get_random_eraser( p=0.2, v_l=0, v_h=255, pixel_level=True),
-        rotation_range=40,
-        width_shift_range=0.3,
-        height_shift_range=0.3,
-        shear_range=0.3,
-        zoom_range=0.3,
-        horizontal_flip=True,
-        fill_mode='nearest')
-    val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
     if optimizer == 'SGD':
         opt = SGD(lr=lr, momentum=0.9, nesterov=True)
@@ -99,20 +66,31 @@ def run(model_name, optimizer, lr):
     print(f"\n  {model_name}: Optimizer=" +
           optimizer + " lr=" + str(lr) + " \n")
     model.compile(
-        loss=f1_loss,
+        loss='categorical_crossentropy',
         optimizer=opt,
-        metrics=[f1_score])
+        metrics=['categorical_accuracy'])
 
+    datagen = ImageDataGenerator(
+        preprocessing_function=preprocess_input,
+        rotation_range=40,
+        width_shift_range=0.3,
+        height_shift_range=0.3,
+        shear_range=0.3,
+        zoom_range=0.3,
+        fill_mode='nearest')
+    val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
+    checkpointer = ModelCheckpoint(
+        filepath=f'../models/{model_name}_{len(fc)}_fc.h5', verbose=0, save_best_only=True)
     model.fit_generator(
         datagen.flow(x_train, y_train, batch_size=batch_size),
-        steps_per_epoch=len(x_train) / batch_size / 10,
+        steps_per_epoch=len(x_train) / batch_size,
         validation_data=val_datagen.flow(x_val, y_val, batch_size=batch_size),
-        validation_steps=len(x_val) / batch_size / 2,
+        validation_steps=len(x_val) / batch_size,
         epochs=epochs,
         callbacks=[early_stopping, checkpointer, reduce_lr],
-        max_queue_size=20,
-        workers=16,
-        use_multiprocessing=True)
+        max_queue_size=10,
+        workers=4,
+        use_multiprocessing=False)
 
     quit()
 

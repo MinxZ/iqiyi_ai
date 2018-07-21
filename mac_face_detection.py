@@ -9,6 +9,8 @@ import face_recognition
 import numpy as np
 from tqdm import tqdm
 
+from model import resizeAndPad
+
 # %matplotlib　inline
 # %%
 data_path = '../data/IQIYI_VID_DATA_Part1'
@@ -43,7 +45,7 @@ for index1, img_path in tqdm(enumerate(png_list)):
         ids.append(id)
 faces = np.array(faces)
 ids = np.array(ids)
-np.save(f'{data_path}/x_train', faces)
+np.save(f'../x_train', faces)
 
 num_class = np.max(ids)
 num_sample = ids.shape[0]
@@ -51,7 +53,8 @@ y = np.zeros((num_sample, num_class), dtype=np.int8)
 for i in range(num_sample):
     id = ids[i]
     y[i, id - 1] = 1
-np.save(f'{data_path}/y_train', y)
+np.save(f'../y_train', y)
+
 # %%
 val_png_list = glob.glob(f'{data_path}/png_val/*.png')
 with open(data_path + '/val.txt') as f:
@@ -64,6 +67,7 @@ for index, line in enumerate(contents):
     val_id2file[id].extend(id_file_path[1:])
     for index1, file_path in enumerate(id_file_path[1:]):
         val_file2id[file_path[-10:]] = id
+pickle.dump(val_file2id, open("../data/val_file2id.p", "wb"))
 
 faces = []
 val2face = defaultdict(list)
@@ -81,9 +85,9 @@ for index, img_path in tqdm(enumerate(val_png_list)):
         i += 1
         val2face[img_path[-19:-9]].append(i)
 
-pickle.dump(val2face, open("val2face.p", "wb"))
+pickle.dump(val2face, open("../data/val2face.p", "wb"))
 faces = np.array(faces)
-np.save(f'{data_path}/x_val', faces)
+np.save(f'../data/x_val', faces)
 
 try:
     p = np.load('../data/p.npy')
@@ -92,53 +96,3 @@ except:
     p = np.random.permutation(num_sample)
     np.save('../data/p', p)
     print('Create indice again.')
-
-
-# %%
-
-
-def resizeAndPad(img, size, padColor=255):
-
-    h, w = img.shape[:2]
-    sh, sw = size
-
-    # interpolation method
-    if h > sh or w > sw:  # shrinking image
-        interp = cv2.INTER_AREA
-    else:  # stretching image
-        interp = cv2.INTER_CUBIC
-
-    # aspect ratio of image
-    # if on Python 2, you might need to cast as a float: float(w)/h
-    aspect = w / h
-
-    # compute scaling and pad sizing
-    if aspect > 1:  # horizontal image
-        new_w = sw
-        new_h = np.round(new_w / aspect).astype(int)
-        pad_vert = (sh - new_h) / 2
-        pad_top, pad_bot = np.floor(pad_vert).astype(
-            int), np.ceil(pad_vert).astype(int)
-        pad_left, pad_right = 0, 0
-    elif aspect < 1:  # vertical image
-        new_h = sh
-        new_w = np.round(new_h * aspect).astype(int)
-        pad_horz = (sw - new_w) / 2
-        pad_left, pad_right = np.floor(pad_horz).astype(
-            int), np.ceil(pad_horz).astype(int)
-        pad_top, pad_bot = 0, 0
-    else:  # square image
-        new_h, new_w = sh, sw
-        pad_left, pad_right, pad_top, pad_bot = 0, 0, 0, 0
-
-    # set pad color
-    # color image but only one color provided
-    if len(img.shape) is 3 and not isinstance(padColor, (list, tuple, np.ndarray)):
-        padColor = [padColor] * 3
-
-    # scale and pad
-    scaled_img = cv2.resize(img, (new_w, new_h), interpolation=interp)
-    scaled_img = cv2.copyMakeBorder(
-        scaled_img, pad_top, pad_bot, pad_left, pad_right, borderType=cv2.BORDER_CONSTANT, value=padColor)
-
-    return scaled_img
