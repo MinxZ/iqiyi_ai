@@ -27,13 +27,11 @@ def model_config():
 
 
 def load_data():
-    p = np.load('../data/p.npy')
-    num = p.shape[0]
-    train = p[:int(num * 0.90)]
-    val = p[int(num * 0.90):]
-    X = np.load('../data/X.npy')
-    y = np.load('../data/y.npy')
-    return X[train], X[val], y[train], y[val]
+    x_train = np.load('../data/x_train.npy')
+    y_train = np.load('../data/y_train.npy')
+    x_val = np.load('../data/x_val.npy')
+    y_val = np.load('../data/y_val.npy')
+    return x_train, x_val, y_train, y_val
 
 
 def tri_fc(inputs, x, fc, pred, layer_names, activation_1='elu', activation_2='softmax'):

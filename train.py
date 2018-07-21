@@ -55,7 +55,7 @@ def run(model_name, optimizer, lr):
     early_stopping = EarlyStopping(
         monitor='val_loss', patience=6, verbose=2, mode='auto')
     reduce_lr = ReduceLROnPlateau(
-        factor=np.sqrt(0.1), patience=2, verbose=2)
+        factor=np.sqrt(0.1), patience=3, verbose=2)
 
     if optimizer == 'SGD':
         opt = SGD(lr=lr, momentum=0.9, nesterov=True)
@@ -72,12 +72,13 @@ def run(model_name, optimizer, lr):
 
     datagen = ImageDataGenerator(
         preprocessing_function=preprocess_input,
-        rotation_range=40,
+        rotation_range=30,
         width_shift_range=0.3,
         height_shift_range=0.3,
         shear_range=0.3,
         zoom_range=0.3,
         fill_mode='nearest')
+
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
     checkpointer = ModelCheckpoint(
         filepath=f'../models/{model_name}_{len(fc)}_fc.h5', verbose=0, save_best_only=True)

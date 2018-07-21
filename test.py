@@ -40,12 +40,21 @@ def run(model_name, optimizer, lr):
     file2id = pickle.load(open("../data/val_file2id.p", "rb"))
     file2face = pickle.load(open("../data/val2face.p", "rb"))
     x_val = np.load('../data/x_val.npy')
+    num_sample = x_val.shape[0]
+    y_val = np.zeros((num_sample, 574), dtype=np.int8)
+
+    for file, faces in file2face.items():
+        id_true = file2id[file]
+        for i in faces:
+            y_val[i][id_true - 1] = 1
+    np.save('../data/y_val', y_val)
 
     # Loading model
     print('\n  Loading model')
     model_config, fc, pred, layer_names, input_shape = model_config()
     batch_size = model_config[model_name][0]
     model = load_model(f'../models/{model_name}_{len(fc)}_fc.h5')
+
     y_pred = model.predict(x_val, batch_size, verbose=1)
     count = 0
     win = 0
