@@ -73,10 +73,10 @@ def run(model_name, optimizer, lr):
     datagen = ImageDataGenerator(
         preprocessing_function=preprocess_input,
         rotation_range=30,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
+        width_shift_range=0.3,
+        height_shift_range=0.3,
+        shear_range=0.3,
+        zoom_range=0.3,
         fill_mode='nearest')
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 

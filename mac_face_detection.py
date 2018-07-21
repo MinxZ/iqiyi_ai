@@ -43,6 +43,7 @@ for index1, img_path in tqdm(enumerate(png_list)):
         faces.append(rgb_image)
         id = file2id[img_path[-19:-9]]
         ids.append(id)
+
 faces = np.array(faces)
 ids = np.array(ids)
 np.save(f'../x_train', faces)
