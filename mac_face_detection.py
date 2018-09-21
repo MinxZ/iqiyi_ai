@@ -87,6 +87,7 @@ for index, img_path in tqdm(enumerate(val_png_list)):
         val2face[img_path[-19:-9]].append(i)
 
 pickle.dump(val2face, open("../data/val2face.p", "wb"))
+favorite_color = pickle.load(open("average_color_feature.p", "rb"))
 faces = np.array(faces)
 np.save(f'../data/x_val', faces)
 num_sample = x_val.shape[0]
